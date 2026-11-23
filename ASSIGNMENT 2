@@ -1,65 +1,99 @@
 #include <stdio.h>
-#include <string.h>
 
-#define MAX_STUDENTS 50
-#define NAME_LEN 50
-#define PASS_MARKS 40.0
+#define MAX 10
 
-struct Student {
-    int rollNo;
-    char name[NAME_LEN];
-    float marks;
-};
-
-void readLine(char str[], int size) {
-    if (fgets(str, size, stdin) != NULL) {
-        size_t len = strlen(str);
-        if (len > 0 && str[len - 1] == '\n') {
-            str[len - 1] = '\0';
+void readMatrix(int mat[MAX][MAX], int r, int c) {
+    for (int i = 0; i < r; i++) {
+        for (int j = 0; j < c; j++) {
+            scanf("%d", &mat[i][j]);
         }
     }
 }
 
+void printMatrix(int mat[MAX][MAX], int r, int c) {
+    for (int i = 0; i < r; i++) {
+        for (int j = 0; j < c; j++) {
+            printf("%d\t", mat[i][j]);
+        }
+        printf("\n");
+    }
+}
+
 int main() {
-    struct Student students[MAX_STUDENTS];
-    int n;
+    int a[MAX][MAX], b[MAX][MAX], res[MAX][MAX];
+    int r1, c1, r2, c2, choice;
 
-    printf("Enter number of students (1-%d): ", MAX_STUDENTS);
-    if (scanf("%d", &n) != 1 || n < 1 || n > MAX_STUDENTS) {
-        printf("Error: Invalid number of students.\n");
-        return 1;
+    printf("Matrix Operations:\n");
+    printf("1. Addition\n2. Subtraction\n3. Multiplication\n4. Transpose\n");
+    printf("Enter choice (1-4): ");
+    scanf("%d", &choice);
+
+    if (choice == 4) {
+        printf("Enter rows and columns of the matrix: ");
+        scanf("%d %d", &r1, &c1);
+        printf("Enter elements of the matrix:\n");
+        readMatrix(a, r1, c1);
+
+        printf("\nTranspose:\n");
+        for (int i = 0; i < c1; i++) {
+            for (int j = 0; j < r1; j++) {
+                printf("%d\t", a[j][i]);
+            }
+            printf("\n");
+        }
+        return 0;
     }
 
-    // Accept student details
-    for (int i = 0; i < n; i++) {
-        printf("\n--- Enter details for Student %d ---\n", i + 1);
-        printf("Roll Number: ");
-        if (scanf("%d", &students[i].rollNo) != 1) {
-            printf("Error: Invalid roll number.\n");
-            return 1;
-        }
-        getchar(); // Clear leftover newline from input buffer
+    printf("Enter rows and columns for Matrix A: ");
+    scanf("%d %d", &r1, &c1);
+    printf("Enter rows and columns for Matrix B: ");
+    scanf("%d %d", &r2, &c2);
 
-        printf("Name: ");
-        readLine(students[i].name, NAME_LEN);
+    switch (choice) {
+        case 1: // Addition
+        case 2: // Subtraction
+            if (r1 != r2 || c1 != c2) {
+                printf("Error: Dimensions must match for addition/subtraction.\n");
+                return 1;
+            }
+            printf("Enter elements of Matrix A:\n");
+            readMatrix(a, r1, c1);
+            printf("Enter elements of Matrix B:\n");
+            readMatrix(b, r2, c2);
 
-        printf("Marks (0-100): ");
-        if (scanf("%f", &students[i].marks) != 1 || students[i].marks < 0 || students[i].marks > 100) {
-            printf("Error: Invalid marks.\n");
-            return 1;
-        }
-    }
+            for (int i = 0; i < r1; i++) {
+                for (int j = 0; j < c1; j++) {
+                    res[i][j] = (choice == 1) ? (a[i][j] + b[i][j]) : (a[i][j] - b[i][j]);
+                }
+            }
+            printf("\nResult:\n");
+            printMatrix(res, r1, c1);
+            break;
 
-    // Display all student records with Pass/Fail result
-    printf("\n%-10s %-25s %-10s %s\n", "Roll No", "Name", "Marks", "Result");
-    printf("--------------------------------------------------------\n");
-    for (int i = 0; i < n; i++) {
-        const char *result = (students[i].marks >= PASS_MARKS) ? "PASS" : "FAIL";
-        printf("%-10d %-25s %-10.2f %s\n",
-               students[i].rollNo,
-               students[i].name,
-               students[i].marks,
-               result);
+        case 3: // Multiplication
+            if (c1 != r2) {
+                printf("Error: Columns of A must equal rows of B.\n");
+                return 1;
+            }
+            printf("Enter elements of Matrix A:\n");
+            readMatrix(a, r1, c1);
+            printf("Enter elements of Matrix B:\n");
+            readMatrix(b, r2, c2);
+
+            for (int i = 0; i < r1; i++) {
+                for (int j = 0; j < c2; j++) {
+                    res[i][j] = 0;
+                    for (int k = 0; k < c1; k++) {
+                        res[i][j] += a[i][k] * b[k][j];
+                    }
+                }
+            }
+            printf("\nProduct:\n");
+            printMatrix(res, r1, c2);
+            break;
+
+        default:
+            printf("Error: Invalid choice.\n");
     }
 
     return 0;
